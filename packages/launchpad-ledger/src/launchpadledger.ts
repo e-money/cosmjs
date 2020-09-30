@@ -169,12 +169,20 @@ export class LaunchpadLedger {
    */
   private async createTransport(openTimeout: number): Promise<Transport> {
     // HACK: Use a variable to get webpack to ignore this
-    const nodeJsTransportPackageName = "@ledgerhq/hw-transport-node-hid";
+    const transportPackageName =
+      this.platform === "node" ? "@ledgerhq/hw-transport-node-hid" : "@ledgerhq/hw-transport-webusb";
+
+    let module: any;
+    try {
+      module = await import(transportPackageName);
+    } catch (e) {
+      throw new Error(
+        `Error importing module "${transportPackageName}". See https://github.com/CosmWasm/cosmjs/blob/master/packages/launchpad-ledger/README.md for installation instructions.`,
+      );
+    }
+
     /* eslint-disable-next-line @typescript-eslint/naming-convention */
-    const { default: TransportClass } =
-      this.platform === "node"
-        ? await import(nodeJsTransportPackageName)
-        : await import("@ledgerhq/hw-transport-webusb");
+    const TransportClass = module.default;
 
     try {
       const transport = await TransportClass.create(openTimeout);
