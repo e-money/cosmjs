@@ -10,12 +10,12 @@ library to connect to Ledger devices from the browser via USB. You can check the
 support status of this library
 [here](https://github.com/LedgerHQ/ledgerjs/tree/master/packages/hw-transport-webusb#support-status).
 
-Note the optional dependencies:
+You need to install one of the following peer dependencies in your project:
 
 ```json
-"optionalDependencies": {
-  "@ledgerhq/hw-transport-node-hid": "^5.23.2",
-  "@ledgerhq/hw-transport-webusb": "^5.23.0"
+"peerDependencies": {
+  "@ledgerhq/hw-transport-node-hid": "^5",
+  "@ledgerhq/hw-transport-webusb": "^5"
 }
 ```
 
