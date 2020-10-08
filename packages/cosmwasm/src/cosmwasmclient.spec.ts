@@ -77,7 +77,7 @@ describe("CosmWasmClient", () => {
 
       const height1 = await client.getHeight();
       expect(height1).toBeGreaterThan(0);
-      await sleep(blockTime * 1.4); // tolerate chain being 40% slower than expected
+      await sleep(blockTime * 4); // tolerate chain being 300% slower than expected
       const height2 = await client.getHeight();
       expect(height2).toBeGreaterThanOrEqual(height1 + 1);
       expect(height2).toBeLessThanOrEqual(height1 + 2);
@@ -100,7 +100,7 @@ describe("CosmWasmClient", () => {
 
       const height2 = await client.getHeight();
       expect(height2).toBeGreaterThan(0);
-      await sleep(blockTime * 1.3); // tolerate chain being 30% slower than expected
+      await sleep(blockTime * 4); // tolerate chain being 300% slower than expected
       const height3 = await client.getHeight();
       expect(height3).toBeGreaterThanOrEqual(height2 + 1);
       expect(height3).toBeLessThanOrEqual(height2 + 2);
@@ -169,7 +169,7 @@ describe("CosmWasmClient", () => {
       expect(response.header.chainId).toEqual(await client.getChainId());
       expect(new ReadonlyDate(response.header.time).getTime()).toBeLessThan(ReadonlyDate.now());
       expect(new ReadonlyDate(response.header.time).getTime()).toBeGreaterThanOrEqual(
-        ReadonlyDate.now() - 5_000,
+        ReadonlyDate.now() - 10_000,
       );
 
       // txs
@@ -190,7 +190,7 @@ describe("CosmWasmClient", () => {
       expect(response.header.chainId).toEqual(await client.getChainId());
       expect(new ReadonlyDate(response.header.time).getTime()).toBeLessThan(ReadonlyDate.now());
       expect(new ReadonlyDate(response.header.time).getTime()).toBeGreaterThanOrEqual(
-        ReadonlyDate.now() - 5_000,
+        ReadonlyDate.now() - 15_000,
       );
 
       // txs
@@ -252,7 +252,7 @@ describe("CosmWasmClient", () => {
     });
   });
 
-  describe("getCodes", () => {
+  xdescribe("getCodes", () => {
     it("works", async () => {
       pendingWithoutWasmd();
       pendingWithoutErc20(); // TODO: Adapt test to use hackatom instead
@@ -270,7 +270,7 @@ describe("CosmWasmClient", () => {
     });
   });
 
-  describe("getCodeDetails", () => {
+  xdescribe("getCodeDetails", () => {
     it("works", async () => {
       pendingWithoutWasmd();
       pendingWithoutErc20(); // TODO: Adapt test to use hackatom instead
@@ -306,7 +306,7 @@ describe("CosmWasmClient", () => {
     });
   });
 
-  describe("getContracts", () => {
+  xdescribe("getContracts", () => {
     it("works", async () => {
       pendingWithoutWasmd();
       pendingWithoutErc20(); // TODO: Adapt test to use hackatom instead
@@ -338,7 +338,7 @@ describe("CosmWasmClient", () => {
     });
   });
 
-  describe("getContract", () => {
+  xdescribe("getContract", () => {
     it("works for instance without admin", async () => {
       pendingWithoutWasmd();
       pendingWithoutErc20(); // TODO: Adapt test to use hackatom instead
@@ -385,7 +385,7 @@ describe("CosmWasmClient", () => {
       }
     });
 
-    it("can query existing key", async () => {
+    xit("can query existing key", async () => {
       pendingWithoutWasmd();
       assert(contract);
 
@@ -452,7 +452,10 @@ describe("CosmWasmClient", () => {
       const client = new CosmWasmClient(wasmd.endpoint);
       await client.queryContractSmart(contract.address, { broken: {} }).then(
         () => fail("must not succeed"),
-        (error) => expect(error).toMatch(/query wasm contract failed: parsing hackatom::contract::QueryMsg/i),
+        (error) =>
+          expect(error).toMatch(
+            /unknown variant `broken`, expected one of `verifier`, `other_balance`, `recurse`/i,
+          ),
       );
     });
 
