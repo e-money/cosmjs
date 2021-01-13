@@ -54,6 +54,7 @@
   },
   "devDependencies": {
     "@cosmjs/encoding": "^0.24.0-alpha.18",
-    "@cosmjs/utils": "^0.24.0-alpha.18"
+    "@cosmjs/utils": "^0.24.0-alpha.18",
+    "ts-proto": "^1.41.1"
   }
 }
