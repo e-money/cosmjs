@@ -10,7 +10,7 @@ import {
 } from "@cosmjs/proto-signing";
 import { assert, sleep } from "@cosmjs/utils";
 
-import { cosmos } from "./codec";
+import { Tx, TxRaw } from "./codec/cosmos/tx/v1beta1/tx";
 import {
   BroadcastTxResponse,
   isBroadcastTxFailure,
@@ -25,8 +25,6 @@ import {
   simapp,
   simappEnabled,
 } from "./testutils.spec";
-
-const { Tx, TxRaw } = cosmos.tx.v1beta1;
 
 interface TestTxSend {
   readonly sender: string;
@@ -82,7 +80,7 @@ async function sendTokens(
   const chainId = await client.getChainId();
   const signDoc = makeSignDoc(txBodyBytes, authInfoBytes, chainId, accountNumber);
   const { signature } = await wallet.signDirect(walletAddress, signDoc);
-  const txRaw = TxRaw.create({
+  const txRaw = TxRaw.fromPartial({
     bodyBytes: txBodyBytes,
     authInfoBytes: authInfoBytes,
     signatures: [fromBase64(signature.signature)],
@@ -232,9 +230,9 @@ describe("StargateClient.getTx and .searchTx", () => {
       // Check basic structure of all results
       for (const result of results) {
         const tx = Tx.decode(result.tx);
-        const filteredMsgs = tx.body!.messages!.filter(({ type_url: typeUrl, value }) => {
+        const filteredMsgs = tx.body!.messages.filter(({ typeUrl: typeUrl, value }) => {
           if (typeUrl !== "/cosmos.bank.v1beta1.MsgSend") return false;
-          const decoded = registry.decode({ typeUrl: typeUrl, value: value! });
+          const decoded = registry.decode({ typeUrl: typeUrl, value: value });
           return decoded.fromAddress === sendSuccessful?.sender;
         });
         expect(filteredMsgs.length).toBeGreaterThanOrEqual(1);
@@ -260,9 +258,9 @@ describe("StargateClient.getTx and .searchTx", () => {
       // Check basic structure of all results
       for (const result of results) {
         const tx = Tx.decode(result.tx);
-        const filteredMsgs = tx.body!.messages!.filter(({ type_url: typeUrl, value }) => {
+        const filteredMsgs = tx.body!.messages.filter(({ typeUrl: typeUrl, value }) => {
           if (typeUrl !== "/cosmos.bank.v1beta1.MsgSend") return false;
-          const decoded = registry.decode({ typeUrl: typeUrl, value: value! });
+          const decoded = registry.decode({ typeUrl: typeUrl, value: value });
           return decoded.toAddress === sendSuccessful?.recipient;
         });
         expect(filteredMsgs.length).toBeGreaterThanOrEqual(1);
@@ -346,9 +344,9 @@ describe("StargateClient.getTx and .searchTx", () => {
       // Check basic structure of all results
       for (const result of results) {
         const tx = Tx.decode(result.tx);
-        const { type_url: typeUrl, value } = fromOneElementArray(tx.body!.messages!);
+        const { typeUrl: typeUrl, value } = fromOneElementArray(tx.body!.messages);
         expect(typeUrl).toEqual("/cosmos.bank.v1beta1.MsgSend");
-        const decoded = registry.decode({ typeUrl: typeUrl!, value: value! });
+        const decoded = registry.decode({ typeUrl: typeUrl, value: value });
         expect(decoded.toAddress).toEqual(sendSuccessful.recipient);
       }
 

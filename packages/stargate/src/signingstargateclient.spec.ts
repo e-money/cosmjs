@@ -6,12 +6,15 @@ import {
   MsgDelegate as LaunchpadMsgDelegate,
   Secp256k1HdWallet,
 } from "@cosmjs/launchpad";
-import { Coin, cosmosField, DirectSecp256k1HdWallet, registered, Registry } from "@cosmjs/proto-signing";
+import { DirectSecp256k1HdWallet, Registry } from "@cosmjs/proto-signing";
 import { assert, sleep } from "@cosmjs/utils";
 import { Message } from "protobufjs";
 
 import { AminoTypes } from "./aminotypes";
-import { cosmos } from "./codec";
+import { MsgSend } from "./codec/cosmos/bank/v1beta1/tx";
+import { Coin } from "./codec/cosmos/base/v1beta1/coin";
+import { MsgDelegate } from "./codec/cosmos/staking/v1beta1/tx";
+import { Tx } from "./codec/cosmos/tx/v1beta1/tx";
 import { PrivateSigningStargateClient, SigningStargateClient } from "./signingstargateclient";
 import { assertIsBroadcastTxSuccess } from "./stargateclient";
 import {
@@ -23,13 +26,6 @@ import {
   simapp,
   validator,
 } from "./testutils.spec";
-
-type IMsgSend = cosmos.bank.v1beta1.IMsgSend;
-type IMsgDelegate = cosmos.staking.v1beta1.IMsgDelegate;
-
-const { MsgSend } = cosmos.bank.v1beta1;
-const { MsgDelegate } = cosmos.staking.v1beta1;
-const { Tx } = cosmos.tx.v1beta1;
 
 describe("SigningStargateClient", () => {
   describe("constructor", () => {
@@ -186,7 +182,7 @@ describe("SigningStargateClient", () => {
         const msgDelegateTypeUrl = "/cosmos.staking.v1beta1.MsgDelegate";
         const client = await SigningStargateClient.connectWithSigner(simapp.tendermintUrl, wallet);
 
-        const msg = MsgDelegate.create({
+        const msg = MsgDelegate.fromPartial({
           delegatorAddress: faucet.address0,
           validatorAddress: validator.validatorAddress,
           amount: coin(1234, "ustake"),
@@ -210,7 +206,7 @@ describe("SigningStargateClient", () => {
         const msgDelegateTypeUrl = "/cosmos.staking.v1beta1.MsgDelegate";
         const client = await SigningStargateClient.connectWithSigner(simapp.tendermintUrl, wallet);
 
-        const msg = MsgDelegate.create({
+        const msg = MsgDelegate.fromPartial({
           delegatorAddress: faucet.address0,
           validatorAddress: validator.validatorAddress,
           amount: coin(1234, "ustake"),
@@ -234,8 +230,8 @@ describe("SigningStargateClient", () => {
         const tx = Tx.decode(searchResult.tx);
         // From ModifyingDirectSecp256k1HdWallet
         expect(tx.body!.memo).toEqual("This was modified");
-        expect({ ...tx.authInfo!.fee!.amount![0] }).toEqual(coin(3000, "ucosm"));
-        expect(tx.authInfo!.fee!.gasLimit!.toNumber()).toEqual(333333);
+        expect({ ...tx.authInfo!.fee!.amount[0] }).toEqual(coin(3000, "ucosm"));
+        expect(tx.authInfo!.fee!.gasLimit.toNumber()).toEqual(333333);
       });
     });
 
@@ -245,15 +241,9 @@ describe("SigningStargateClient", () => {
       // > Decorated types reside in protobuf.roots["decorated"] using a flat structure, so no duplicate names.
       const customRegistry = new Registry();
       const msgDelegateTypeUrl = "/cosmos.staking.v1beta1.MsgDelegate";
-
-      @registered(customRegistry, msgDelegateTypeUrl)
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       class CustomMsgDelegate extends Message {
-        @cosmosField.string(1)
         public readonly custom_delegator_address?: string;
-        @cosmosField.string(2)
         public readonly custom_validator_address?: string;
-        @cosmosField.message(3, Coin)
         public readonly custom_amount?: Coin;
       }
 
@@ -262,7 +252,7 @@ describe("SigningStargateClient", () => {
         const wallet = await Secp256k1HdWallet.fromMnemonic(faucet.mnemonic);
         const client = await SigningStargateClient.connectWithSigner(simapp.tendermintUrl, wallet);
 
-        const msgSend: IMsgSend = {
+        const msgSend: MsgSend = {
           fromAddress: faucet.address0,
           toAddress: makeRandomAddress(),
           amount: coins(1234, "ucosm"),
@@ -285,7 +275,7 @@ describe("SigningStargateClient", () => {
         const wallet = await Secp256k1HdWallet.fromMnemonic(faucet.mnemonic);
         const client = await SigningStargateClient.connectWithSigner(simapp.tendermintUrl, wallet);
 
-        const msgDelegate: IMsgDelegate = {
+        const msgDelegate: MsgDelegate = {
           delegatorAddress: faucet.address0,
           validatorAddress: validator.validatorAddress,
           amount: coin(1234, "ustake"),
@@ -337,7 +327,7 @@ describe("SigningStargateClient", () => {
                 CustomMsgDelegate.create({
                   custom_delegator_address: delegator_address,
                   custom_validator_address: validator_address,
-                  custom_amount: Coin.create(amount),
+                  custom_amount: Coin.fromJSON(amount),
                 }),
             },
           },
@@ -392,8 +382,8 @@ describe("SigningStargateClient", () => {
         const tx = Tx.decode(searchResult.tx);
         // From ModifyingSecp256k1HdWallet
         expect(tx.body!.memo).toEqual("This was modified");
-        expect({ ...tx.authInfo!.fee!.amount![0] }).toEqual(coin(3000, "ucosm"));
-        expect(tx.authInfo!.fee!.gasLimit!.toNumber()).toEqual(333333);
+        expect({ ...tx.authInfo!.fee!.amount[0] }).toEqual(coin(3000, "ucosm"));
+        expect(tx.authInfo!.fee!.gasLimit.toNumber()).toEqual(333333);
       });
     });
   });

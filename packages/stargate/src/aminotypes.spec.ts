@@ -4,30 +4,29 @@ import {
   coin,
   coins,
   encodeBech32Pubkey,
+  MsgBeginRedelegate as LaunchpadMsgBeginRedelegate,
+  MsgCreateValidator as LaunchpadMsgCreateValidator,
+  MsgDelegate as LaunchpadMsgDelegate,
+  MsgEditValidator as LaunchpadMsgEditValidator,
+  MsgMultiSend as LaunchpadMsgMultiSend,
+  MsgSend as LaunchpadMsgSend,
+  MsgUndelegate as LaunchpadMsgUndelegate,
+} from "@cosmjs/launchpad";
+
+import { AminoTypes } from "./aminotypes";
+import { MsgMultiSend, MsgSend } from "./codec/cosmos/bank/v1beta1/tx";
+import {
   MsgBeginRedelegate,
   MsgCreateValidator,
   MsgDelegate,
   MsgEditValidator,
-  MsgMultiSend,
-  MsgSend,
   MsgUndelegate,
-} from "@cosmjs/launchpad";
-
-import { AminoTypes } from "./aminotypes";
-import { cosmos } from "./codec";
-
-type IMsgSend = cosmos.bank.v1beta1.IMsgSend;
-type IMsgMultiSend = cosmos.bank.v1beta1.IMsgMultiSend;
-type IMsgBeginRedelegate = cosmos.staking.v1beta1.IMsgBeginRedelegate;
-type IMsgCreateValidator = cosmos.staking.v1beta1.IMsgCreateValidator;
-type IMsgDelegate = cosmos.staking.v1beta1.IMsgDelegate;
-type IMsgEditValidator = cosmos.staking.v1beta1.IMsgEditValidator;
-type IMsgUndelegate = cosmos.staking.v1beta1.IMsgUndelegate;
+} from "./codec/cosmos/staking/v1beta1/tx";
 
 describe("AminoTypes", () => {
   describe("toAmino", () => {
     it("works for MsgSend", () => {
-      const msg: IMsgSend = {
+      const msg: MsgSend = {
         fromAddress: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
         toAddress: "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5",
         amount: coins(1234, "ucosm"),
@@ -36,7 +35,7 @@ describe("AminoTypes", () => {
         typeUrl: "/cosmos.bank.v1beta1.MsgSend",
         value: msg,
       });
-      const expected: MsgSend = {
+      const expected: LaunchpadMsgSend = {
         type: "cosmos-sdk/MsgSend",
         value: {
           from_address: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
@@ -48,7 +47,7 @@ describe("AminoTypes", () => {
     });
 
     it("works for MsgMultiSend", () => {
-      const msg: IMsgMultiSend = {
+      const msg: MsgMultiSend = {
         inputs: [
           { address: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6", coins: coins(1234, "ucosm") },
           { address: "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5", coins: coins(5678, "ucosm") },
@@ -62,7 +61,7 @@ describe("AminoTypes", () => {
         typeUrl: "/cosmos.bank.v1beta1.MsgMultiSend",
         value: msg,
       });
-      const expected: MsgMultiSend = {
+      const expected: LaunchpadMsgMultiSend = {
         type: "cosmos-sdk/MsgMultiSend",
         value: {
           inputs: [
@@ -79,7 +78,7 @@ describe("AminoTypes", () => {
     });
 
     it("works for MsgBeginRedelegate", () => {
-      const msg: IMsgBeginRedelegate = {
+      const msg: MsgBeginRedelegate = {
         delegatorAddress: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
         validatorSrcAddress: "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5",
         validatorDstAddress: "cosmos1xy4yqngt0nlkdcenxymg8tenrghmek4nmqm28k",
@@ -89,7 +88,7 @@ describe("AminoTypes", () => {
         typeUrl: "/cosmos.staking.v1beta1.MsgBeginRedelegate",
         value: msg,
       });
-      const expected: MsgBeginRedelegate = {
+      const expected: LaunchpadMsgBeginRedelegate = {
         type: "cosmos-sdk/MsgBeginRedelegate",
         value: {
           delegator_address: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
@@ -102,7 +101,7 @@ describe("AminoTypes", () => {
     });
 
     it("works for MsgCreateValidator", () => {
-      const msg: IMsgCreateValidator = {
+      const msg: MsgCreateValidator = {
         description: {
           moniker: "validator",
           identity: "me",
@@ -119,7 +118,7 @@ describe("AminoTypes", () => {
         delegatorAddress: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
         validatorAddress: "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5",
         pubkey: {
-          type_url: "/cosmos.crypto.secp256k1.PubKey",
+          typeUrl: "/cosmos.crypto.secp256k1.PubKey",
           value: fromBase64("A08EGB7ro1ORuFhjOnZcSgwYlpe0DSFjVNUIkNNQxwKQ"),
         },
         value: coin(1234, "ucosm"),
@@ -128,7 +127,7 @@ describe("AminoTypes", () => {
         typeUrl: "/cosmos.staking.v1beta1.MsgCreateValidator",
         value: msg,
       });
-      const expected: MsgCreateValidator = {
+      const expected: LaunchpadMsgCreateValidator = {
         type: "cosmos-sdk/MsgCreateValidator",
         value: {
           description: {
@@ -157,7 +156,7 @@ describe("AminoTypes", () => {
     });
 
     it("works for MsgDelegate", () => {
-      const msg: IMsgDelegate = {
+      const msg: MsgDelegate = {
         delegatorAddress: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
         validatorAddress: "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5",
         amount: coin(1234, "ucosm"),
@@ -166,7 +165,7 @@ describe("AminoTypes", () => {
         typeUrl: "/cosmos.staking.v1beta1.MsgDelegate",
         value: msg,
       });
-      const expected: MsgDelegate = {
+      const expected: LaunchpadMsgDelegate = {
         type: "cosmos-sdk/MsgDelegate",
         value: {
           delegator_address: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
@@ -178,7 +177,7 @@ describe("AminoTypes", () => {
     });
 
     it("works for MsgEditValidator", () => {
-      const msg: IMsgEditValidator = {
+      const msg: MsgEditValidator = {
         description: {
           moniker: "validator",
           identity: "me",
@@ -194,7 +193,7 @@ describe("AminoTypes", () => {
         typeUrl: "/cosmos.staking.v1beta1.MsgEditValidator",
         value: msg,
       });
-      const expected: MsgEditValidator = {
+      const expected: LaunchpadMsgEditValidator = {
         type: "cosmos-sdk/MsgEditValidator",
         value: {
           description: {
@@ -213,7 +212,7 @@ describe("AminoTypes", () => {
     });
 
     it("works for MsgUndelegate", () => {
-      const msg: IMsgUndelegate = {
+      const msg: MsgUndelegate = {
         delegatorAddress: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
         validatorAddress: "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5",
         amount: coin(1234, "ucosm"),
@@ -222,7 +221,7 @@ describe("AminoTypes", () => {
         typeUrl: "/cosmos.staking.v1beta1.MsgUndelegate",
         value: msg,
       });
-      const expected: MsgUndelegate = {
+      const expected: LaunchpadMsgUndelegate = {
         type: "cosmos-sdk/MsgUndelegate",
         value: {
           delegator_address: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
@@ -263,7 +262,7 @@ describe("AminoTypes", () => {
     });
 
     it("works with overridden type url", () => {
-      const msg: IMsgDelegate = {
+      const msg: MsgDelegate = {
         delegatorAddress: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
         validatorAddress: "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5",
         amount: coin(1234, "ucosm"),
@@ -272,7 +271,7 @@ describe("AminoTypes", () => {
         additions: {
           "/cosmos.staking.v1beta1.MsgDelegate": {
             aminoType: "my-override/MsgDelegate",
-            toAmino: (m: IMsgDelegate): { readonly foo: string } => ({
+            toAmino: (m: MsgDelegate): { readonly foo: string } => ({
               foo: m.delegatorAddress ?? "",
             }),
             fromAmino: () => {},
@@ -300,7 +299,7 @@ describe("AminoTypes", () => {
 
   describe("fromAmino", () => {
     it("works for MsgSend", () => {
-      const aminoMsg: MsgSend = {
+      const aminoMsg: LaunchpadMsgSend = {
         type: "cosmos-sdk/MsgSend",
         value: {
           from_address: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
@@ -309,7 +308,7 @@ describe("AminoTypes", () => {
         },
       };
       const msg = new AminoTypes().fromAmino(aminoMsg);
-      const expectedValue: IMsgSend = {
+      const expectedValue: MsgSend = {
         fromAddress: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
         toAddress: "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5",
         amount: coins(1234, "ucosm"),
@@ -321,7 +320,7 @@ describe("AminoTypes", () => {
     });
 
     it("works for MsgMultiSend", () => {
-      const aminoMsg: MsgMultiSend = {
+      const aminoMsg: LaunchpadMsgMultiSend = {
         type: "cosmos-sdk/MsgMultiSend",
         value: {
           inputs: [
@@ -335,7 +334,7 @@ describe("AminoTypes", () => {
         },
       };
       const msg = new AminoTypes().fromAmino(aminoMsg);
-      const expectedValue: IMsgMultiSend = {
+      const expectedValue: MsgMultiSend = {
         inputs: [
           { address: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6", coins: coins(1234, "ucosm") },
           { address: "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5", coins: coins(5678, "ucosm") },
@@ -352,7 +351,7 @@ describe("AminoTypes", () => {
     });
 
     it("works for MsgBeginRedelegate", () => {
-      const aminoMsg: MsgBeginRedelegate = {
+      const aminoMsg: LaunchpadMsgBeginRedelegate = {
         type: "cosmos-sdk/MsgBeginRedelegate",
         value: {
           delegator_address: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
@@ -362,7 +361,7 @@ describe("AminoTypes", () => {
         },
       };
       const msg = new AminoTypes().fromAmino(aminoMsg);
-      const expectedValue: IMsgBeginRedelegate = {
+      const expectedValue: MsgBeginRedelegate = {
         delegatorAddress: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
         validatorSrcAddress: "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5",
         validatorDstAddress: "cosmos1xy4yqngt0nlkdcenxymg8tenrghmek4nmqm28k",
@@ -375,7 +374,7 @@ describe("AminoTypes", () => {
     });
 
     it("works for MsgCreateValidator", () => {
-      const aminoMsg: MsgCreateValidator = {
+      const aminoMsg: LaunchpadMsgCreateValidator = {
         type: "cosmos-sdk/MsgCreateValidator",
         value: {
           description: {
@@ -401,7 +400,7 @@ describe("AminoTypes", () => {
         },
       };
       const msg = new AminoTypes().fromAmino(aminoMsg);
-      const expectedValue: IMsgCreateValidator = {
+      const expectedValue: MsgCreateValidator = {
         description: {
           moniker: "validator",
           identity: "me",
@@ -418,7 +417,7 @@ describe("AminoTypes", () => {
         delegatorAddress: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
         validatorAddress: "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5",
         pubkey: {
-          type_url: "/cosmos.crypto.secp256k1.PubKey",
+          typeUrl: "/cosmos.crypto.secp256k1.PubKey",
           value: fromBase64("A08EGB7ro1ORuFhjOnZcSgwYlpe0DSFjVNUIkNNQxwKQ"),
         },
         value: coin(1234, "ucosm"),
@@ -430,7 +429,7 @@ describe("AminoTypes", () => {
     });
 
     it("works for MsgDelegate", () => {
-      const aminoMsg: MsgDelegate = {
+      const aminoMsg: LaunchpadMsgDelegate = {
         type: "cosmos-sdk/MsgDelegate",
         value: {
           delegator_address: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
@@ -439,7 +438,7 @@ describe("AminoTypes", () => {
         },
       };
       const msg = new AminoTypes().fromAmino(aminoMsg);
-      const expectedValue: IMsgDelegate = {
+      const expectedValue: MsgDelegate = {
         delegatorAddress: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
         validatorAddress: "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5",
         amount: coin(1234, "ucosm"),
@@ -451,7 +450,7 @@ describe("AminoTypes", () => {
     });
 
     it("works for MsgEditValidator", () => {
-      const aminoMsg: MsgEditValidator = {
+      const aminoMsg: LaunchpadMsgEditValidator = {
         type: "cosmos-sdk/MsgEditValidator",
         value: {
           description: {
@@ -467,7 +466,7 @@ describe("AminoTypes", () => {
         },
       };
       const msg = new AminoTypes().fromAmino(aminoMsg);
-      const expectedValue: IMsgEditValidator = {
+      const expectedValue: MsgEditValidator = {
         description: {
           moniker: "validator",
           identity: "me",
@@ -486,7 +485,7 @@ describe("AminoTypes", () => {
     });
 
     it("works for MsgUndelegate", () => {
-      const aminoMsg: MsgUndelegate = {
+      const aminoMsg: LaunchpadMsgUndelegate = {
         type: "cosmos-sdk/MsgUndelegate",
         value: {
           delegator_address: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
@@ -495,7 +494,7 @@ describe("AminoTypes", () => {
         },
       };
       const msg = new AminoTypes().fromAmino(aminoMsg);
-      const expectedValue: IMsgUndelegate = {
+      const expectedValue: MsgUndelegate = {
         delegatorAddress: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
         validatorAddress: "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5",
         amount: coin(1234, "ucosm"),
@@ -540,7 +539,7 @@ describe("AminoTypes", () => {
           "/my.OverrideType": {
             aminoType: "cosmos-sdk/MsgDelegate",
             toAmino: () => {},
-            fromAmino: ({ foo }: { readonly foo: string }): IMsgDelegate => ({
+            fromAmino: ({ foo }: { readonly foo: string }): MsgDelegate => ({
               delegatorAddress: foo,
               validatorAddress: "cosmos10dyr9899g6t0pelew4nvf4j5c3jcgv0r73qga5",
               amount: coin(1234, "ucosm"),
@@ -553,7 +552,7 @@ describe("AminoTypes", () => {
           foo: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
         },
       });
-      const expected: { readonly typeUrl: "/my.OverrideType"; readonly value: IMsgDelegate } = {
+      const expected: { readonly typeUrl: "/my.OverrideType"; readonly value: MsgDelegate } = {
         typeUrl: "/my.OverrideType",
         value: {
           delegatorAddress: "cosmos1pkptre7fdkl6gfrzlesjjvhxhlc3r4gmmk8rs6",
